@@ -26,6 +26,9 @@ This setting will enable or disable the transaction to submit your eCRV to boost
 #### ENABLECLAIMDAD
 This setting will enable or disable the checking claim amount and claiming rewards for locking DAD tokens.
 
+#### ENABLECLAIMLP
+This setting will enable or disable the checking claim amount and claiming rewards for adding to 3pool.  
+
 The file should look like this:
 ```dotenv
 PRIVATEKEY=yourPrivateKey
@@ -34,6 +37,7 @@ PERMISSION=yourPermission
 INTERVAL=60000 #this is ok to leave at 60000, that will be every minute
 ENABLEBOOST=1 # set to 1 if you want to boost eCRV by locking it automatically
 ENABLECLAIMDAD=1 # set to 1 if you also locked DAD token that is earning eCRV
+ENABLECLAIMLP=1 # set to 1 if you are staking LP tokens to earn eCRV
 ```
 
 ## Setup Service

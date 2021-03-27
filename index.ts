@@ -14,10 +14,16 @@ const api = new Api({
 	rpc, signatureProvider, chainId, textDecoder: new TextDecoder(), textEncoder: new TextEncoder()
 });
 
-let enableClaimDAD = false, enableBoost = false;
+let enableClaimDAD = false;
+let enableClaimLP  = false;
+let enableBoost    = false;
 
 if (process.env.ENABLEBOOST === '1') {
 	enableBoost = true;
+}
+
+if (process.env.ENABLECLAIMLP === '1') {
+	enableClaimLP = true;
 }
 
 if (process.env.ENABLECLAIMDAD === '1') {
@@ -26,7 +32,10 @@ if (process.env.ENABLECLAIMDAD === '1') {
 
 async function main() {
 	let claimAmount = 0.0;
-	claimAmount += await checkLpClaimAmount();
+
+	if (enableClaimLP) {
+		claimAmount += await checkLpClaimAmount();
+	}
 
 	if (enableClaimDAD) {
 		claimAmount += await checkDadClaimAmount();
