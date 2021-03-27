@@ -110,7 +110,7 @@ async function main() {
 							"from"    : `${process.env.ACCOUNTNAME}`,
 							"to"      : "ecrvgovlock1",
 							"quantity": `${claimAmount} ECRV`,
-							"memo"    : `claiming with ecrv-autoclaim`
+							"memo"    : `boosting with AutoClaim eCRV`
 						}
 					},
 					{
