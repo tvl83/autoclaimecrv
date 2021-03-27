@@ -36,27 +36,11 @@ async function main() {
 
 	console.log(`Claiming ${claimAmount} ECRV`)
 
-	let actions = [];
-	actions.push(
-		{
-			"account"      : "ecrvclaim111",
-			"name"         : "claim",
-			"authorization": [
-				{
-					"actor"     : `${process.env.ACCOUNTNAME}`,
-					"permission": `${process.env.PERMISSION}`
-				}
-			],
-			"data"         : {
-				"owner": `${process.env.ACCOUNTNAME}`
-			}
-		}
-	);
-
-	if (enableClaimDAD) {
+	if (claimAmount > 0) {
+		let actions = [];
 		actions.push(
 			{
-				"account"      : "dadlockecrv1",
+				"account"      : "ecrvclaim111",
 				"name"         : "claim",
 				"authorization": [
 					{
@@ -68,33 +52,49 @@ async function main() {
 					"owner": `${process.env.ACCOUNTNAME}`
 				}
 			}
-		)
-	}
+		);
 
-	let claimEcrvResult = await api
-		.transact({
-			"actions": actions
-		}, {
-			broadcast    : true,
-			blocksBehind : 3,
-			expireSeconds: 60
-		})
-		.then(result => {
-			console.log(result)
-			if (result.processed.receipt.status === 'executed') {
-				console.log(`Successfully Claimed ECRV`)
-			}
-		})
-		.catch(err => {
-			if (err.json.error.code !== 3050003) {
-				console.error(err);
-				console.log(err.json.error.code);
-			}
-		})
+		if (enableClaimDAD) {
+			actions.push(
+				{
+					"account"      : "dadlockecrv1",
+					"name"         : "claim",
+					"authorization": [
+						{
+							"actor"     : `${process.env.ACCOUNTNAME}`,
+							"permission": `${process.env.PERMISSION}`
+						}
+					],
+					"data"         : {
+						"owner": `${process.env.ACCOUNTNAME}`
+					}
+				}
+			)
+		}
 
-	if (enableBoost) {
-		// BOOST
-		if (claimAmount > 0) {
+		let claimEcrvResult = await api
+			.transact({
+				"actions": actions
+			}, {
+				broadcast    : true,
+				blocksBehind : 3,
+				expireSeconds: 60
+			})
+			.then(result => {
+				console.log(result)
+				if (result.processed.receipt.status === 'executed') {
+					console.log(`Successfully Claimed ECRV`)
+				}
+			})
+			.catch(err => {
+				if (err.json.error.code !== 3050003) {
+					console.error(err);
+					console.log(err.json.error.code);
+				}
+			})
+
+		if (enableBoost) {
+			// BOOST
 			api.transact(
 				{
 					"actions": [
@@ -143,9 +143,9 @@ async function main() {
 			   .catch(error => {
 				   console.error(error);
 			   })
-		} else {
-			console.log(`Claim amount is ${claimAmount}, cannot boost right now`)
 		}
+	} else {
+		console.log(`Claim amount is ${claimAmount}`)
 	}
 }
 
@@ -193,7 +193,7 @@ let interval: number = 0;
 if (process.env.INTERVAL !== undefined) {
 	interval = parseInt(process.env.INTERVAL.toString()) / 60000;
 }
-console.log(`Starting in ${interval} minute(s)`);
+main();
 setInterval(() => {
 	main();
 	console.log(`Will check again in ${interval} minute`)
