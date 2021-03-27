@@ -146,10 +146,14 @@ async function main() {
 		console.log(`Claim amount is ${claimAmount}, cannot boost right now`)
 	}
 }
+let interval: number = 0;
 
-console.log(`Starting in 1 minute`);
+if(process.env.INTERVAL !== undefined) {
+	interval = parseInt(process.env.INTERVAL.toString()) / 60000;
+}
+console.log(`Starting in ${interval} minute(s)`);
 setInterval(() =>{
 	main();
-	console.log(`Will check again in 1 minute`)
+	console.log(`Will check again in ${interval} minute`)
 }, parseInt(`${process.env.INTERVAL}`));
 
