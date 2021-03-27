@@ -1,7 +1,9 @@
 import "reflect-metadata";
 import {Api, JsonRpc} from 'eosjs';
-const dotenv     = require('dotenv').config({path: __dirname + '/.env'});
+const dotenv = require('dotenv').config({path: __dirname + '/.env'});
 import {JsSignatureProvider} from "eosjs/dist/eosjs-jssig";
+
+const consolestamp = require('console-stamp')(console, '[HH:MM:ss.l]');
 
 async function main() {
 	const fetch             = require('node-fetch');
@@ -86,14 +88,14 @@ async function main() {
 			}
 		})
 		.catch(err => {
-			if(err.json.error.code !== 3050003) {
+			if (err.json.error.code !== 3050003) {
 				console.error(err);
 				console.log(err.json.error.code);
 			}
 		})
 
 	// BOOST
-	if(claimAmount > 0) {
+	if (claimAmount > 0) {
 		api.transact(
 			{
 				"actions": [
@@ -136,7 +138,7 @@ async function main() {
 			}
 		)
 		   .then(result => {
-		   	console.log(`Boosted successfully`);
+			   console.log(`Boosted successfully`);
 			   console.log(result);
 		   })
 		   .catch(error => {
@@ -146,13 +148,14 @@ async function main() {
 		console.log(`Claim amount is ${claimAmount}, cannot boost right now`)
 	}
 }
+
 let interval: number = 0;
 
-if(process.env.INTERVAL !== undefined) {
+if (process.env.INTERVAL !== undefined) {
 	interval = parseInt(process.env.INTERVAL.toString()) / 60000;
 }
 console.log(`Starting in ${interval} minute(s)`);
-setInterval(() =>{
+setInterval(() => {
 	main();
 	console.log(`Will check again in ${interval} minute`)
 }, parseInt(`${process.env.INTERVAL}`));
