@@ -18,12 +18,16 @@ This is the permission.
 #### INTERVAL
 This is the interval the script will run, in milliseconds. 1000 = 1 second. I have mine set to 60000 which is 1 minute.  
 
+#### ENABLEBOOST
+This setting will enable or disable the transaction to submit your eCRV to boost it. You must already have an initial boost from https://ecurve.finance for boost to work.
+
 The file should look like this:
 ```dotenv
 PRIVATEKEY=yourPrivateKey
 ACCOUNTNAME=yourAcctName
 PERMISSION=yourPermission
 INTERVAL=60000 #this is ok to leave at 60000, that will be every minute
+ENABLEBOOST=1
 ```
 
 ## Setup Service

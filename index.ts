@@ -1,9 +1,14 @@
 import "reflect-metadata";
 import {Api, JsonRpc} from 'eosjs';
+
 const dotenv = require('dotenv').config({path: __dirname + '/.env'});
 import {JsSignatureProvider} from "eosjs/dist/eosjs-jssig";
 
 const consolestamp = require('console-stamp')(console, '[HH:MM:ss.l]');
+let enableBoost    = false;
+if (process.env.ENABLEBOOST === '1') {
+	enableBoost = true;
+}
 
 async function main() {
 	const fetch             = require('node-fetch');
@@ -94,58 +99,60 @@ async function main() {
 			}
 		})
 
-	// BOOST
-	if (claimAmount > 0) {
-		api.transact(
-			{
-				"actions": [
-					{
-						"account"      : "ecurvetoken1",
-						"name"         : "transfer",
-						"authorization": [
-							{
-								"actor"     : `${process.env.ACCOUNTNAME}`,
-								"permission": `${process.env.PERMISSION}`
+	if (enableBoost) {
+		// BOOST
+		if (claimAmount > 0) {
+			api.transact(
+				{
+					"actions": [
+						{
+							"account"      : "ecurvetoken1",
+							"name"         : "transfer",
+							"authorization": [
+								{
+									"actor"     : `${process.env.ACCOUNTNAME}`,
+									"permission": `${process.env.PERMISSION}`
+								}
+							],
+							"data"         : {
+								"from"    : `${process.env.ACCOUNTNAME}`,
+								"to"      : "ecrvgovlock1",
+								"quantity": `${claimAmount} ECRV`,
+								"memo"    : `boosting with AutoClaim eCRV`
 							}
-						],
-						"data"         : {
-							"from"    : `${process.env.ACCOUNTNAME}`,
-							"to"      : "ecrvgovlock1",
-							"quantity": `${claimAmount} ECRV`,
-							"memo"    : `boosting with AutoClaim eCRV`
-						}
-					},
-					{
-						"account"      : "ecrvgovlock1",
-						"name"         : "incramt",
-						"authorization": [
-							{
-								"actor"     : `${process.env.ACCOUNTNAME}`,
-								"permission": `${process.env.PERMISSION}`
+						},
+						{
+							"account"      : "ecrvgovlock1",
+							"name"         : "incramt",
+							"authorization": [
+								{
+									"actor"     : `${process.env.ACCOUNTNAME}`,
+									"permission": `${process.env.PERMISSION}`
+								}
+							],
+							"data"         : {
+								"account" : `${process.env.ACCOUNTNAME}`,
+								"quantity": `${claimAmount} ECRV`
 							}
-						],
-						"data"         : {
-							"account" : `${process.env.ACCOUNTNAME}`,
-							"quantity": `${claimAmount} ECRV`
 						}
-					}
-				]
-			},
-			{
-				broadcast    : true,
-				blocksBehind : 3,
-				expireSeconds: 60
-			}
-		)
-		   .then(result => {
-			   console.log(`Boosted successfully`);
-			   console.log(result);
-		   })
-		   .catch(error => {
-			   console.error(error);
-		   })
-	} else {
-		console.log(`Claim amount is ${claimAmount}, cannot boost right now`)
+					]
+				},
+				{
+					broadcast    : true,
+					blocksBehind : 3,
+					expireSeconds: 60
+				}
+			)
+			   .then(result => {
+				   console.log(`Boosted successfully`);
+				   console.log(result);
+			   })
+			   .catch(error => {
+				   console.error(error);
+			   })
+		} else {
+			console.log(`Claim amount is ${claimAmount}, cannot boost right now`)
+		}
 	}
 }
 
