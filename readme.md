@@ -2,6 +2,8 @@
 
 I wrote this script so that I will get the most out of eCRV rewards by automatically claiming every hour. It is set to run every minute. Rewards are calculated and given at the bottom of every hour. There are configurations you can use to increase the interval.
 
+One pre-requisite is that you must already have locked eCRV. You can do this via https://ecurve.finance. 
+
 ## Settings
 
 Create a `.env` file and add these settings.  
@@ -21,13 +23,17 @@ This is the interval the script will run, in milliseconds. 1000 = 1 second. I ha
 #### ENABLEBOOST
 This setting will enable or disable the transaction to submit your eCRV to boost it. You must already have an initial boost from https://ecurve.finance for boost to work.
 
+#### ENABLECLAIMDAD
+This setting will enable or disable the checking claim amount and claiming rewards for locking DAD tokens.
+
 The file should look like this:
 ```dotenv
 PRIVATEKEY=yourPrivateKey
 ACCOUNTNAME=yourAcctName
 PERMISSION=yourPermission
 INTERVAL=60000 #this is ok to leave at 60000, that will be every minute
-ENABLEBOOST=1
+ENABLEBOOST=1 # set to 1 if you want to boost eCRV by locking it automatically
+ENABLECLAIMDAD=1 # set to 1 if you also locked DAD token that is earning eCRV
 ```
 
 ## Setup Service
