@@ -1,6 +1,6 @@
 # AutoClaim eCRV
 
-I wrote this script so that I will get the most out of eCRV rewards by automatically claiming every hour. It is set to run every minute. Rewards are calculated and given at the bottom of every hour. There are configurations you can use to increase the interval.
+I wrote this script so that I will get the most out of eCRV rewards by automatically claiming and boosting every hour. It is set to run every minute. Rewards are calculated and given at the bottom of every hour. There are configurations you can use to increase the interval.
 
 One pre-requisite is that you must already have locked eCRV. You can do this via https://ecurve.finance. 
 

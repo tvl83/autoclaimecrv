@@ -41,11 +41,13 @@ async function main() {
 		claimAmount += await checkDadClaimAmount();
 	}
 
-	console.log(`Total to be claimed is ${claimAmount} ECRV`)
-
-	console.log(`Claiming ${claimAmount} ECRV`)
-
 	if (claimAmount > 0) {
+		claimAmount = parseFloat(claimAmount.toFixed(4));
+
+		console.log(`Total to be claimed is ${claimAmount} ECRV`)
+
+		console.log(`Claiming ${claimAmount} ECRV`)
+
 		let actions = [];
 		actions.push(
 			{
@@ -93,6 +95,57 @@ async function main() {
 				console.log(result)
 				if (result.processed.receipt.status === 'executed') {
 					console.log(`Successfully Claimed ECRV`)
+					if (enableBoost) {
+						// BOOST
+						api.transact(
+							{
+								"actions": [
+									{
+										"account"      : "ecurvetoken1",
+										"name"         : "transfer",
+										"authorization": [
+											{
+												"actor"     : `${process.env.ACCOUNTNAME}`,
+												"permission": `${process.env.PERMISSION}`
+											}
+										],
+										"data"         : {
+											"from"    : `${process.env.ACCOUNTNAME}`,
+											"to"      : "ecrvgovlock1",
+											"quantity": `${claimAmount} ECRV`,
+											"memo"    : `boosting with AutoClaim eCRV`
+										}
+									},
+									{
+										"account"      : "ecrvgovlock1",
+										"name"         : "incramt",
+										"authorization": [
+											{
+												"actor"     : `${process.env.ACCOUNTNAME}`,
+												"permission": `${process.env.PERMISSION}`
+											}
+										],
+										"data"         : {
+											"account" : `${process.env.ACCOUNTNAME}`,
+											"quantity": `${claimAmount} ECRV`
+										}
+									}
+								]
+							},
+							{
+								broadcast    : true,
+								blocksBehind : 3,
+								expireSeconds: 60
+							}
+						)
+						   .then(result => {
+							   console.log(`Boosted successfully`);
+							   console.log(result);
+						   })
+						   .catch(error => {
+							   console.error(error);
+						   })
+					}
 				}
 			})
 			.catch(err => {
@@ -101,58 +154,6 @@ async function main() {
 					console.log(err.json.error.code);
 				}
 			})
-
-		if (enableBoost) {
-			// BOOST
-			api.transact(
-				{
-					"actions": [
-						{
-							"account"      : "ecurvetoken1",
-							"name"         : "transfer",
-							"authorization": [
-								{
-									"actor"     : `${process.env.ACCOUNTNAME}`,
-									"permission": `${process.env.PERMISSION}`
-								}
-							],
-							"data"         : {
-								"from"    : `${process.env.ACCOUNTNAME}`,
-								"to"      : "ecrvgovlock1",
-								"quantity": `${claimAmount} ECRV`,
-								"memo"    : `boosting with AutoClaim eCRV`
-							}
-						},
-						{
-							"account"      : "ecrvgovlock1",
-							"name"         : "incramt",
-							"authorization": [
-								{
-									"actor"     : `${process.env.ACCOUNTNAME}`,
-									"permission": `${process.env.PERMISSION}`
-								}
-							],
-							"data"         : {
-								"account" : `${process.env.ACCOUNTNAME}`,
-								"quantity": `${claimAmount} ECRV`
-							}
-						}
-					]
-				},
-				{
-					broadcast    : true,
-					blocksBehind : 3,
-					expireSeconds: 60
-				}
-			)
-			   .then(result => {
-				   console.log(`Boosted successfully`);
-				   console.log(result);
-			   })
-			   .catch(error => {
-				   console.error(error);
-			   })
-		}
 	} else {
 		console.log(`Claim amount is ${claimAmount}`)
 	}
@@ -170,9 +171,11 @@ const checkLpClaimAmount = async (): Promise<number> => {
 		upper_bound: `${process.env.ACCOUNTNAME}`
 	});
 
-	console.log(`${ecrvClaimResult.rows[0].owner} can claim ${ecrvClaimResult.rows[0].issuedamt} from staked eCRV`)
 
 	claimAmount += parseFloat(ecrvClaimResult.rows[0].issuedamt.split(" ")[0]);
+	if (claimAmount > 0) {
+		console.log(`${ecrvClaimResult.rows[0].owner} can claim ${ecrvClaimResult.rows[0].issuedamt} from staked eCRV`)
+	}
 
 	return claimAmount;
 }
@@ -188,9 +191,10 @@ const checkDadClaimAmount = async (): Promise<number> => {
 		upper_bound: `${process.env.ACCOUNTNAME}`
 	});
 
-	console.log(`${dadClaimResult.rows[0].owner} can claim ${dadClaimResult.rows[0].issuedamt} from staked DAD`)
-
 	claimAmount += parseFloat(dadClaimResult.rows[0].issuedamt.split(" ")[0]);
+	if(claimAmount > 0) {
+		console.log(`${dadClaimResult.rows[0].owner} can claim ${dadClaimResult.rows[0].issuedamt} from staked DAD`)
+	}
 
 	return claimAmount;
 }
