@@ -42,7 +42,7 @@ async function main() {
 	}
 
 	if (claimAmount > 0) {
-		claimAmount = parseFloat(claimAmount.toFixed(4));
+		claimAmount = parseFloat(claimAmount.toFixed(6));
 
 		console.log(`Total to be claimed is ${claimAmount} ECRV`)
 
