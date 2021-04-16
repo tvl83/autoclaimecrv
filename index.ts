@@ -16,6 +16,7 @@ const api = new Api({
 
 let enableClaimDAD = false;
 let enableClaimLP  = false;
+let enableClaimAdmin = false;
 let enableBoost    = false;
 
 if (process.env.ENABLEBOOST === '1') {
@@ -28,6 +29,10 @@ if (process.env.ENABLECLAIMLP === '1') {
 
 if (process.env.ENABLECLAIMDAD === '1') {
 	enableClaimDAD = true;
+}
+
+if(process.env.ENABLECLAIMADMIN === '1'){
+	enableClaimAdmin = true;
 }
 
 async function main() {
@@ -96,41 +101,43 @@ async function main() {
 				if (result.processed.receipt.status === 'executed') {
 					console.log(`Successfully Claimed ECRV`)
 					if (enableBoost) {
+						const actions = [
+							{
+								"account"      : "ecurvetoken1",
+								"name"         : "transfer",
+								"authorization": [
+									{
+										"actor"     : `${process.env.ACCOUNTNAME}`,
+										"permission": `${process.env.PERMISSION}`
+									}
+								],
+								"data"         : {
+									"from"    : `${process.env.ACCOUNTNAME}`,
+									"to"      : "ecrvgovlock1",
+									"quantity": `${claimAmount} ECRV`,
+									"memo"    : `boosting with AutoClaim eCRV`
+								}
+							},
+							{
+								"account"      : "ecrvgovlock1",
+								"name"         : "incramt",
+								"authorization": [
+									{
+										"actor"     : `${process.env.ACCOUNTNAME}`,
+										"permission": `${process.env.PERMISSION}`
+									}
+								],
+								"data"         : {
+									"account" : `${process.env.ACCOUNTNAME}`,
+									"quantity": `${claimAmount} ECRV`
+								}
+							}
+						];
+
 						// BOOST
 						api.transact(
 							{
-								"actions": [
-									{
-										"account"      : "ecurvetoken1",
-										"name"         : "transfer",
-										"authorization": [
-											{
-												"actor"     : `${process.env.ACCOUNTNAME}`,
-												"permission": `${process.env.PERMISSION}`
-											}
-										],
-										"data"         : {
-											"from"    : `${process.env.ACCOUNTNAME}`,
-											"to"      : "ecrvgovlock1",
-											"quantity": `${claimAmount} ECRV`,
-											"memo"    : `boosting with AutoClaim eCRV`
-										}
-									},
-									{
-										"account"      : "ecrvgovlock1",
-										"name"         : "incramt",
-										"authorization": [
-											{
-												"actor"     : `${process.env.ACCOUNTNAME}`,
-												"permission": `${process.env.PERMISSION}`
-											}
-										],
-										"data"         : {
-											"account" : `${process.env.ACCOUNTNAME}`,
-											"quantity": `${claimAmount} ECRV`
-										}
-									}
-								]
+								"actions": actions
 							},
 							{
 								broadcast    : true,
@@ -144,6 +151,8 @@ async function main() {
 						   })
 						   .catch(error => {
 							   console.error(error);
+							   console.log(`error details:`, error.json.error.details);
+							   console.log(actions)
 						   })
 					}
 				}
@@ -207,6 +216,7 @@ if (process.env.INTERVAL !== undefined) {
 	interval = parseInt(process.env.INTERVAL.toString()) / 60000;
 }
 main();
+console.log(`Will check again in ${interval} minute`)
 setInterval(() => {
 	main();
 	console.log(`Will check again in ${interval} minute`)
